@@ -5,9 +5,9 @@ import { getConnection } from 'typeorm';
 import { ProductlogRepository, ProductRepository } from './products.repository';
 import * as request from 'request';
 import { promisify } from 'util';
-import { from } from 'rxjs';
 
-const fech = promisify(request);
+
+const fetch = promisify(request);
 @Injectable()
 export class ProductsService {
     constructor(private readonly product: ProductRepository, private readonly productlog: ProductlogRepository) { }
@@ -48,11 +48,15 @@ export class ProductsService {
     }
 
     // async getrequest() {
-    //     const fechoption = {
-    //         method: 'POST',
-    //         url: ''
-    //     }
+    //    const option = {
+    //   method: 'GET',
+    //   url: 'http://192.168.1.136:3000/products/getproduct',
+    // };
 
+    // const data = await Fetch(option);
+    // const body = JSON.parse(data.body);
+    // console.log(body)
+    // return body
     // }
 
     async getbyId(id: number) {
@@ -73,15 +77,33 @@ export class ProductsService {
         }
     }
 
+    async getbyskucode(body: ProductCreateDto) {
+        try {
+            const find = await this.product.find({ where: { sku_code: body.sku_code } })
+            // console.log(find)
+            if (!find.length) throw new Error('no product data ');
+
+            return {
+                success: true,
+                data: find
+            }
+        } catch (error) {
+            throw new NotFoundException({
+                success: false,
+                message: error.message,
+            });
+        }
+    }
 
     async addProduct(body: ProductCreateDto[]) {
         try {
+            if (!body.length) throw new Error('No data');
             for (let i in body) {
                 const product = new productdata()
                 const productlog = new product_log()
                 const { sku_code, sku_name, price, note, quantity } = body[i];
-                // console.log(body[i])
-                const findproduct = await this.product.findOne({ where: { sku: sku_code } })
+                console.log(body[i])
+                const findproduct = await this.product.findOne({ where: { sku_code: sku_code } })
                 if (findproduct) throw new Error('มีชื่อซ้ำ');
                 product.sku_code = sku_code
                 product.sku_name = sku_name
@@ -99,6 +121,7 @@ export class ProductsService {
                 await productlog.save();
 
             }
+
 
 
             return {

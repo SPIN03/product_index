@@ -10,6 +10,12 @@ export class ProductsController {
     async getproduct() {
         return this.productservice.getProduct();
     }
+
+    @Post('getbyskucode')
+    async getskuname(@Body() body: ProductCreateDto) {
+        return this.productservice.getbyskucode(body)
+    }
+
     @Get(':id/getproductid')
     @UsePipes(new ValidationPipe())
     async getproductid(@Param('id', ParseIntPipe) id: number) {
@@ -28,8 +34,8 @@ export class ProductsController {
         return this.productservice.addProduct(body);
     }
 
-    @Patch(':id/updateproduct')
 
+    @Patch(':id/updateproduct')
     async updateproduct(@Body() body: ProductCreateDto, @Param('id', ParseIntPipe) id: number) {
         return this.productservice.updateProduct(id, body)
     }
