@@ -5,6 +5,7 @@ import {
     CreateDateColumn,
     ManyToOne,
     BaseEntity,
+    OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -24,6 +25,8 @@ export class productdata extends BaseEntity {
     @Column({ nullable: true })
     note: string;
 
+    @OneToMany(type => product_log, productlog => productlog.productid)
+    producthis: product_log[];
 
 }
 
@@ -47,7 +50,7 @@ export class product_log extends BaseEntity {
     @CreateDateColumn()
     date_created: Date;
 
-    @ManyToOne((type) => productdata, (productdata) => productdata.id)
+    @ManyToOne((type) => productdata, (productdata) => productdata.id, { onDelete: 'CASCADE' })
     productid: productdata;
 
 
