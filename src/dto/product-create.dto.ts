@@ -7,7 +7,12 @@ export class ProductCreateDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    sku: string;
+    sku_name: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    sku_code: string;
 
     @ApiProperty()
     @IsNumber()

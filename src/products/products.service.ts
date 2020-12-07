@@ -3,7 +3,11 @@ import { ProductCreateDto } from 'src/dto/product-create.dto';
 import { productdata, product_log } from 'src/entity/product.entity';
 import { getConnection } from 'typeorm';
 import { ProductlogRepository, ProductRepository } from './products.repository';
+import * as request from 'request';
+import { promisify } from 'util';
+import { from } from 'rxjs';
 
+const fech = promisify(request);
 @Injectable()
 export class ProductsService {
     constructor(private readonly product: ProductRepository, private readonly productlog: ProductlogRepository) { }
@@ -43,6 +47,14 @@ export class ProductsService {
         }
     }
 
+    // async getrequest() {
+    //     const fechoption = {
+    //         method: 'POST',
+    //         url: ''
+    //     }
+
+    // }
+
     async getbyId(id: number) {
         try {
             const find = await this.product.findOne({ where: { id: id } })
@@ -64,22 +76,23 @@ export class ProductsService {
 
     async addProduct(body: ProductCreateDto[]) {
         try {
-
             for (let i in body) {
                 const product = new productdata()
                 const productlog = new product_log()
-                const { sku, price, note, quantity } = body[i];
+                const { sku_code, sku_name, price, note, quantity } = body[i];
                 // console.log(body[i])
-                const findproduct = await this.product.findOne({ where: { sku: sku } })
+                const findproduct = await this.product.findOne({ where: { sku: sku_code } })
                 if (findproduct) throw new Error('มีชื่อซ้ำ');
-                product.sku = sku
+                product.sku_code = sku_code
+                product.sku_name = sku_name
                 product.price = price
                 product.quantity = quantity
                 product.note = note
                 await product.save();
                 // console.log('product :', product)
                 productlog.productid = product
-                productlog.sku_updated = sku
+                productlog.sku_code_updated = sku_code
+                productlog.sku_name_updated = sku_name
                 productlog.price_updated = price
                 productlog.quantity_updated = quantity
                 productlog.note_updated = note
@@ -107,17 +120,19 @@ export class ProductsService {
     async updateProduct(id: number, body: ProductCreateDto) {
         try {
             const productlog = new product_log()
-            const { sku, price, note, quantity } = body;
+            const { sku_code, sku_name, price, note, quantity } = body;
             const find = await this.product.findOne({ where: { id: id } })
             if (!find) throw new Error('not found.');
             if (find.quantity + quantity < 0) throw new Error('สินค้าไม่พอ');
-            find.sku = sku
+            find.sku_code = sku_code
+            find.sku_name = sku_name
             find.price = price
             find.quantity = find.quantity + quantity
             find.note = note
             await find.save()
             productlog.productid = find;
-            productlog.sku_updated = sku
+            productlog.sku_code_updated = sku_code
+            productlog.sku_name_updated = sku_name
             productlog.price_updated = price
             productlog.quantity_updated = quantity
             productlog.note_updated = note
@@ -170,5 +185,44 @@ export class ProductsService {
             });
         }
     }
+
+    // async deleteproductmore(id: number[]) {
+    //     try {
+    //         console.log('id :', id)
+    //         for (let i in id) {
+    //             console.log('i :', i)
+    //             const numberid = id[i]
+    //             const find = await this.product.findOne({ where: { id: numberid } })
+    //             if (!find) throw new Error('id not found.');
+    //             await getConnection()
+    //                 .createQueryBuilder()
+    //                 .delete()
+    //                 .from(productdata)
+    //                 .where("id = :id", { id: id })
+    //                 .execute();
+
+    //             await getConnection()
+    //                 .createQueryBuilder()
+    //                 .delete()
+    //                 .from(product_log)
+    //                 .where("productid = :productid", { productid: id })
+    //                 .execute();
+    //         }
+    //         return {
+    //             success: true,
+    //             message: 'delete success.'
+    //         };
+
+
+    //     } catch (error) {
+    //         throw new BadRequestException({
+    //             success: false,
+    //             message: error.message,
+    //         });
+    //     }
+
+
+
+    // }
 
 }

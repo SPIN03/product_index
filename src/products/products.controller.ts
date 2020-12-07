@@ -36,11 +36,13 @@ export class ProductsController {
 
 
     @Delete(':id/delete')
-
-    async deleteproduct(@Param('id', ParseIntPipe) id: number
-    ) {
+    async deleteproduct(@Param('id', ParseIntPipe) id: number) {
         return this.productservice.deleteProduct(id)
     }
 
+    // @Delete(':id/deletemore')
+    // async deleteproductmore(@Param('id', ParseIntPipe) id: number[]) {
+    //     return this.productservice.deleteproductmore(id)
+    // }
 
 }

@@ -14,7 +14,10 @@ export class productdata extends BaseEntity {
     id: number;
 
     @Column()
-    sku: string;
+    sku_code: string;
+
+    @Column()
+    sku_name: string;
 
     @Column()
     quantity: number;
@@ -39,7 +42,10 @@ export class product_log extends BaseEntity {
     quantity_updated: number;
 
     @Column()
-    sku_updated: string;
+    sku_code_updated: string;
+
+    @Column()
+    sku_name_updated: string;
 
     @Column()
     price_updated: number;
