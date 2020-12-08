@@ -38,16 +38,16 @@ export class product_log extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ nullable: true })
     quantity_updated: number;
 
-    @Column()
+    @Column({ nullable: true })
     sku_code_updated: string;
 
-    @Column()
+    @Column({ nullable: true })
     sku_name_updated: string;
 
-    @Column()
+    @Column({ nullable: true })
     price_updated: number;
 
     @Column({ nullable: true })

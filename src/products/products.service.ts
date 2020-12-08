@@ -47,17 +47,17 @@ export class ProductsService {
         }
     }
 
-    // async getrequest() {
-    //    const option = {
-    //   method: 'GET',
-    //   url: 'http://192.168.1.136:3000/products/getproduct',
-    // };
+    async getrequest() {
+        const option = {
+            method: 'POST',
+            url: 'http://192.168.1.137:3000/',
+        };
 
-    // const data = await Fetch(option);
-    // const body = JSON.parse(data.body);
-    // console.log(body)
-    // return body
-    // }
+        const data = await fetch(option);
+        const body = JSON.parse(data.body);
+        console.log(body)
+        return body
+    }
 
     async getbyId(id: number) {
         try {
@@ -77,15 +77,18 @@ export class ProductsService {
         }
     }
 
-    async getbyskucode(body: ProductCreateDto) {
+    async getbyskucode(body: ProductCreateDto[]) {
         try {
-            const find = await this.product.find({ where: { sku_code: body.sku_code } })
-            // console.log(find)
-            if (!find.length) throw new Error('no product data ');
-
+            const data = []
+            for (let i in body) {
+                const find = await this.product.findOne({ where: { sku_code: body[i].sku_code } })
+                // console.log(find)
+                if (!find) throw new Error('no product data ');
+                data[i] = find
+            }
             return {
                 success: true,
-                data: find
+                data: data
             }
         } catch (error) {
             throw new NotFoundException({
@@ -140,26 +143,69 @@ export class ProductsService {
         }
     }
 
+
+    async updatequantity(body: ProductCreateDto[]) {
+        try {
+            if (!body.length) throw new Error('No data');
+            for (let i in body) {
+                const productlog = new product_log()
+                const { sku_code, quantity } = body[i];
+                const find = await this.product.findOne({ where: { sku_code: sku_code } })
+                if (!find) throw new Error('not found.');
+                if (find.quantity + quantity < 0) throw new Error('สินค้าไม่พอ');
+
+                if (quantity) {
+                    find.quantity = find.quantity - quantity
+                    productlog.quantity_updated = quantity
+                    await find.save()
+                    await productlog.save()
+                }
+
+
+            }
+
+            return {
+                success: true,
+                message: 'updated success.',
+                data: productdata
+            };
+        } catch (error) {
+            throw new BadRequestException({
+                success: false,
+                message: error.message,
+            })
+        }
+    }
+
     async updateProduct(id: number, body: ProductCreateDto) {
         try {
+            if (!body) throw new Error('No data');
+
             const productlog = new product_log()
             const { sku_code, sku_name, price, note, quantity } = body;
             const find = await this.product.findOne({ where: { id: id } })
             if (!find) throw new Error('not found.');
             if (find.quantity + quantity < 0) throw new Error('สินค้าไม่พอ');
+
             find.sku_code = sku_code
+            if (price) {
+                find.price = price
+                productlog.price_updated = price
+            }
+            if (quantity) {
+                find.quantity = find.quantity + quantity
+                productlog.quantity_updated = quantity
+            }
             find.sku_name = sku_name
-            find.price = price
-            find.quantity = find.quantity + quantity
             find.note = note
             await find.save()
             productlog.productid = find;
             productlog.sku_code_updated = sku_code
             productlog.sku_name_updated = sku_name
-            productlog.price_updated = price
-            productlog.quantity_updated = quantity
+
             productlog.note_updated = note
             await productlog.save()
+
             return {
                 success: true,
                 message: 'updated success.',

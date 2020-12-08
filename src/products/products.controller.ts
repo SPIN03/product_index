@@ -12,7 +12,8 @@ export class ProductsController {
     }
 
     @Post('getbyskucode')
-    async getskuname(@Body() body: ProductCreateDto) {
+    async getskuname(@Body() body: ProductCreateDto[]) {
+        console.log(body)
         return this.productservice.getbyskucode(body)
     }
 
@@ -37,9 +38,15 @@ export class ProductsController {
 
     @Patch(':id/updateproduct')
     async updateproduct(@Body() body: ProductCreateDto, @Param('id', ParseIntPipe) id: number) {
+        // console.log('id :', id, '\n body :', body)
         return this.productservice.updateProduct(id, body)
     }
 
+    @Patch('updatequantity')
+    async updatequantity(@Body() body: ProductCreateDto[]) {
+        console.log(body)
+        return this.productservice.updatequantity(body)
+    }
 
     @Delete(':id/delete')
     async deleteproduct(@Param('id', ParseIntPipe) id: number) {
