@@ -11,9 +11,10 @@ const fetch = promisify(request);
 @Injectable()
 export class ProductsService {
     constructor(private readonly product: ProductRepository, private readonly productlog: ProductlogRepository) { }
-    async getProduct() {
+    async getProduct(): Promise<any> {
         try {
-            const datafind = await this.product.find()
+            const datafind = await this.product.find({ relations: ["producthis"] })
+            // const datafind = await this.product.find()
 
             if (!datafind.length) throw new Error('no data');
             return {
@@ -28,7 +29,7 @@ export class ProductsService {
             });
         }
     }
-    async getLog(id: number) {
+    async getLog(id: number): Promise<any> {
         try {
 
             const find = await this.productlog.find({ where: { productid: id } })
@@ -59,7 +60,7 @@ export class ProductsService {
         return body
     }
 
-    async getbyId(id: number) {
+    async getbyId(id: number): Promise<any> {
         try {
             const find = await this.product.findOne({ where: { id: id } })
             // console.log(find)
@@ -77,7 +78,7 @@ export class ProductsService {
         }
     }
 
-    async getbyskucode(body: ProductCreateDto[]) {
+    async getbyskucode(body: ProductCreateDto[]): Promise<any> {
         try {
             const data = []
             for (let i in body) {
@@ -98,7 +99,7 @@ export class ProductsService {
         }
     }
 
-    async addProduct(body: ProductCreateDto[]) {
+    async addProduct(body: ProductCreateDto[]): Promise<any> {
         try {
             if (!body.length) throw new Error('No data');
             for (let i in body) {
@@ -144,7 +145,7 @@ export class ProductsService {
     }
 
 
-    async updatequantity(body: ProductCreateDto[]) {
+    async updatequantity(body: ProductCreateDto[]): Promise<any> {
         try {
             if (!body.length) throw new Error('No data');
             for (let i in body) {
@@ -155,8 +156,10 @@ export class ProductsService {
                 if (find.quantity + quantity < 0) throw new Error('สินค้าไม่พอ');
 
                 if (quantity) {
-                    find.quantity = find.quantity - quantity
-                    productlog.quantity_updated = quantity
+
+                    find.quantity = find.quantity - (quantity)
+                    productlog.quantity_updated = -(quantity)
+                    productlog.productid = find
                     await find.save()
                     await productlog.save()
                 }
@@ -177,7 +180,7 @@ export class ProductsService {
         }
     }
 
-    async updateProduct(id: number, body: ProductCreateDto) {
+    async updateProduct(id: number, body: ProductCreateDto): Promise<any> {
         try {
             if (!body) throw new Error('No data');
 
@@ -186,8 +189,13 @@ export class ProductsService {
             const find = await this.product.findOne({ where: { id: id } })
             if (!find) throw new Error('not found.');
             if (find.quantity + quantity < 0) throw new Error('สินค้าไม่พอ');
+            if (sku_code) {
+                find.sku_code = sku_code
+            }
+            if (sku_name) {
+                find.sku_name = sku_name
+            }
 
-            find.sku_code = sku_code
             if (price) {
                 find.price = price
                 productlog.price_updated = price
@@ -196,7 +204,7 @@ export class ProductsService {
                 find.quantity = find.quantity + quantity
                 productlog.quantity_updated = quantity
             }
-            find.sku_name = sku_name
+
             find.note = note
             await find.save()
             productlog.productid = find;
@@ -223,7 +231,7 @@ export class ProductsService {
     }
 
 
-    async deleteProduct(id: number) {
+    async deleteProduct(id: number): Promise<any> {
         try {
             const find = await this.product.findOne({ where: { id: id } })
             if (!find) throw new Error('id not found.');

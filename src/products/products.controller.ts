@@ -12,6 +12,7 @@ export class ProductsController {
     }
 
     @Post('getbyskucode')
+    @UsePipes(new ValidationPipe())
     async getskuname(@Body() body: ProductCreateDto[]) {
         console.log(body)
         return this.productservice.getbyskucode(body)
