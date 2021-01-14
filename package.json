@@ -29,6 +29,7 @@
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "module": "^1.2.5",
+    "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "nats": "^1.4.12",
     "pg": "^8.5.1",
